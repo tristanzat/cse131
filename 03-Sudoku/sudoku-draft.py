@@ -1,16 +1,14 @@
 # 1. Name:
 #      Tristan Zatylny
 # 2. Assignment Name:
-#      Lab 06 : Sudoku Program
+#      Lab 05 : Sudoku Draft
 # 3. Assignment Description:
-#      Display and play a game of Sudoku. Allows saving and loading to/from
-#      files respectively.
+#      Display and 'play' the game of Sudoku without any of the rules.
 # 4. What was the hardest part? Be as specific as possible.
-#      Generating the tests was the most difficult part. The only new
-#      code that needed to be implemented was handling either coordinate
-#      format and checking if a number was valid.
+#      The hardest part was figuring out how I wanted to store save games.
+#      I ended up slicing the file name and adding a timestamp.
 # 5. How long did it take for you to complete the assignment?
-#      15 min so far
+#      1.5 hours
 
 import json, datetime
 
@@ -48,16 +46,11 @@ def load_game(filename: str) -> list[list[int]]:
         print(f"Error: {e}")
 
 def convert_to_coordinate(input: str) -> tuple[int, int]:
-    '''Converts a given input to a coordinate tuple (e.g. B5 or 5B -> (4, 1))'''
+    '''Converts a given input to a coordinate tuple (e.g. B5 -> (4, 1))'''
     # Split input into 2 parts
     try:
-        # Separate into number part and letter part
-        try:
-            row = int(input[0]) - 1
-            column = input[1].upper()
-        except:
-            row = int(input[1]) - 1
-            column = input[0].upper()
+        column = input[0].upper()
+        row = int(input[1]) - 1
 
         # Convert letter into number by subtracting ASCII code
         column = ord(column) - 65
@@ -74,40 +67,14 @@ def convert_to_coordinate(input: str) -> tuple[int, int]:
         return (-1, -1)
 
 
-def is_valid_choice(board: list[list[int]], coord: tuple[int, int], num: str) -> bool:
+def is_valid_choice(board: list[list[int]], coord: tuple[int, int], input: str) -> bool:
     '''Validates user input. Returns true if valid; false if not.'''
-    row, col = coord
-
-    # --- Input validation ---
+    # Try converting input to int
     try:
-        num = int(num)
+        num = int(input)
     except:
         return False
-    if num < 1 or num > 9:
-        return False
-
-    # --- Row check ---
-    for c in range(9):
-        if c != col and board[row][c] == num:
-            return False
-
-    # --- Column check ---
-    for r in range(9):
-        if r != row and board[r][col] == num:
-            return False
-
-    #--- 3x3 box check ---
-    box_row_start = (row // 3) * 3
-    box_col_start = (col // 3) * 3
-
-    for r in range(box_row_start, box_row_start + 3):
-        for c in range(box_col_start, box_col_start + 3):
-            if (r, c) != (row, col) and board[r][c] == num:
-                return False
-
-    # --- All checks passed ---
     return True
-
 
 def get_board_string(board: list[list[int]]) -> str:
     '''Returns the board in a printable format.'''
@@ -169,6 +136,7 @@ def main():
                 # See if coord is already full
                 elif board[coord[0]][coord[1]] != 0:
                     print(f"Error: {choice} is already filled.")
+                    print(f"Coord: ({coord[0]},{coord[1]}), value: {board[coord[0]][coord[1]]}")
 
                 # Valid otherwise
                 else:
@@ -182,7 +150,7 @@ def main():
                 print(f"{num} is invalid. Try a different number.")
                 num = input(f"What number goes in {choice}? ")
 
-            board[coord[0]][coord[1]] = int(num)
+            board[coord[0]][coord[1]] = num
 
             # Display board
             print(get_board_string(board))
