@@ -47,17 +47,22 @@ def load_game(filename: str) -> list[list[int]]:
     except Exception as e:
         print(f"Error: {e}")
 
-def convert_to_coordinate(input: str) -> tuple[int, int]:
+def convert_to_coordinate(coord: str) -> tuple[int, int]:
     '''Converts a given input to a coordinate tuple (e.g. B5 or 5B -> (4, 1))'''
     # Split input into 2 parts
     try:
+        # Trim whitespace
+        coord = coord.strip()
+        # Assert input is 2 characters
+        assert(len(coord) == 2)
+
         # Separate into number part and letter part
         try:
-            row = int(input[0]) - 1
-            column = input[1].upper()
+            row = int(coord[0]) - 1
+            column = coord[1].upper()
         except:
-            row = int(input[1]) - 1
-            column = input[0].upper()
+            row = int(coord[1]) - 1
+            column = coord[0].upper()
 
         # Convert letter into number by subtracting ASCII code
         column = ord(column) - 65
