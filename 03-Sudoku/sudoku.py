@@ -6,11 +6,11 @@
 #      Display and play a game of Sudoku. Allows saving and loading to/from
 #      files respectively.
 # 4. What was the hardest part? Be as specific as possible.
-#      Generating the tests was the most difficult part. The only new
-#      code that needed to be implemented was handling either coordinate
-#      format and checking if a number was valid.
+#      Generating the tests was the most difficult part because I haven't
+#      done it before. The only new code that needed to be implemented was
+#      handling either coordinate format and checking if a number was valid.
 # 5. How long did it take for you to complete the assignment?
-#      15 min so far
+#      45 minutes
 
 import json, datetime
 
