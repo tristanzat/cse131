@@ -78,10 +78,49 @@ def convert_to_coordinate(coord: str) -> tuple[int, int]:
     except:
         return (-1, -1)
 
+def get_valid_nums(board: list[list[int]], coord: tuple[int, int]) -> list[int]:
+    '''Returns a list of valid numbers for a given square in a sudoku board.'''
+    row, col = coord
+    valid_nums = []
+
+    for num in range(1, 10):
+        failed = False
+        # --- Row check ---
+        for c in range(9):
+            # Check if we fail
+            if c != col and board[row][c] == num:
+                failed = True
+                break
+
+        # Continue checks if we haven't failed
+        if not failed:
+            # --- Column check ---
+            for r in range(9):
+                # Check if we fail
+                if r != row and board[r][col] == num:
+                    failed = True
+                    break
+
+            # Continue checks if we haven't failed
+            if not failed:
+                #--- 3x3 box check ---
+                box_row_start = (row // 3) * 3
+                box_col_start = (col // 3) * 3
+
+                for r in range(box_row_start, box_row_start + 3):
+                    for c in range(box_col_start, box_col_start + 3):
+                        if (r, c) != (row, col) and board[r][c] == num:
+                            failed = True
+                            break
+
+        # Add number to valid list if it never failed
+        if not failed:
+            valid_nums.append(num)
+
+    return valid_nums
 
 def is_valid_choice(board: list[list[int]], coord: tuple[int, int], num: str) -> bool:
     '''Validates user input. Returns true if valid; false if not.'''
-    row, col = coord
 
     # --- Input validation ---
     try:
@@ -91,27 +130,12 @@ def is_valid_choice(board: list[list[int]], coord: tuple[int, int], num: str) ->
     if num < 1 or num > 9:
         return False
 
-    # --- Row check ---
-    for c in range(9):
-        if c != col and board[row][c] == num:
-            return False
+    # See if it is in the list of valid moves
+    if num in get_valid_nums(board, coord):
+        return True
 
-    # --- Column check ---
-    for r in range(9):
-        if r != row and board[r][col] == num:
-            return False
-
-    #--- 3x3 box check ---
-    box_row_start = (row // 3) * 3
-    box_col_start = (col // 3) * 3
-
-    for r in range(box_row_start, box_row_start + 3):
-        for c in range(box_col_start, box_col_start + 3):
-            if (r, c) != (row, col) and board[r][c] == num:
-                return False
-
-    # --- All checks passed ---
-    return True
+    # Number wasn't valid
+    return False
 
 
 def get_board_string(board: list[list[int]]) -> str:
@@ -181,13 +205,25 @@ def main():
 
         # Only if user didn't quit
         if not done:
-            # Get user number input
-            num = input(f"What number goes in {choice}? ")
-            while not is_valid_choice(board, coord, num):
-                print(f"{num} is invalid. Try a different number.")
-                num = input(f"What number goes in {choice}? ")
+            valid = False
+            exit = False
 
-            board[coord[0]][coord[1]] = int(num)
+            while not valid:
+                # Get user number input
+                num = input(f"Input the number for square {choice}, enter 'h' for a hint, or 'b' to go back to the board > ")
+                if num.upper() == "H":
+                    print(f"Valid numbers: {get_valid_nums(board, coord)}")
+
+                elif num.upper() == "B":
+                    valid = True
+                    exit = True
+                
+                elif not is_valid_choice(board, coord, num):
+                    print(f"{num} is invalid. Try a different number.")
+
+            # Only do this if we didn't exit to board
+            if not exit:
+                board[coord[0]][coord[1]] = int(num)
 
             # Display board
             print(get_board_string(board))
