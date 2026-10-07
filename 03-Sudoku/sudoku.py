@@ -221,6 +221,9 @@ def main():
                 elif not is_valid_choice(board, coord, num):
                     print(f"{num} is invalid. Try a different number.")
 
+                else:
+                    valid = True
+
             # Only do this if we didn't exit to board
             if not exit:
                 board[coord[0]][coord[1]] = int(num)
