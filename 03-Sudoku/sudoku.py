@@ -155,37 +155,21 @@ def get_board_string(board: list[list[int]]) -> str:
 
     return board_string
 
-def main():
-    # Game loading
-    board = None
-    filename = "" # Keep this for save game use
-    while board is None:
-        filename = input("Enter the json file to load (excluding extension): ")
-        board = load_game(filename)
-
-    # First time display
-    print(get_board_string(board))
-    print("Specify a coordinate to edit or 'Q' to save and quit")
-
+def play_game(board: list[list[int]], filename: str):
+    '''Handles playing the game, including saving and exiting.'''
     # Game loop
     done = False
     while not done:
         # Get user cell choice
         valid_coord = False
-        while not valid_coord:
+        while not valid_coord and not done:
             choice = input("> ")
 
             # User quit
             if choice.upper() == "Q":
-                today = datetime.datetime.today()
-                save_index = filename.find(".save")
-                # Slice off save string if it exists
-                if save_index != -1:
-                    filename = filename[:save_index]
-                save_name = filename + f".save{today.month:02}{today.day:02}{today.hour:02}{today.minute:02}" + ".json"
+                save_name = create_save_name(filename)
                 save_game(save_name, board)
                 done = True
-                valid_coord = True
 
             # User didn't quit
             else:
@@ -205,32 +189,64 @@ def main():
 
         # Only if user didn't quit
         if not done:
-            valid = False
-            exit = False
 
-            while not valid:
-                # Get user number input
-                num = input(f"Input the number for square {choice}, enter 'h' for a hint, or 'b' to go back to the board > ")
-                if num.upper() == "H":
-                    print(f"Valid numbers: {get_valid_nums(board, coord)}")
-
-                elif num.upper() == "B":
-                    valid = True
-                    exit = True
-                
-                elif not is_valid_choice(board, coord, num):
-                    print(f"{num} is invalid. Try a different number.")
-
-                else:
-                    valid = True
+            num = get_number_loop(board, choice, coord)
 
             # Only do this if we didn't exit to board
-            if not exit:
+            if num is not None:
                 board[coord[0]][coord[1]] = int(num)
 
             # Display board
             print(get_board_string(board))
 
+def get_number_loop(board: list[list[int]], choice: str, coord: tuple[int, int]) -> int | None:
+    '''Handles getting a number from the user and validating it against the board.'''
+    # Loop until we return
+    while True:
+        # Get user number input
+        num = input(f"Input the number for square {choice}, enter 'h' for a hint, or 'b' to go back to the board > ")
+        
+        # Hint
+        if num.upper() == "H":
+            print(f"Valid numbers: {get_valid_nums(board, coord)}")
+
+        # Back to board
+        elif num.upper() == "B":
+            return
+
+        # Invalid
+        elif not is_valid_choice(board, coord, num):
+            print(f"{num} is invalid. Try a different number.")
+
+        # Valid
+        else:
+            return num
+
+def create_save_name(filename: str):
+    '''Returns the name for a save file based on the current date and time'''
+    today = datetime.datetime.today()
+    save_index = filename.find(".save")
+    # Slice off save string if it exists
+    if save_index != -1:
+        filename = filename[:save_index]
+    save_name = filename + f".save{today.month:02}{today.day:02}{today.hour:02}{today.minute:02}" + ".json"
+    return save_name
+
+def main():
+    '''Loads a game, does initial display, then goes into game loop.'''
+    # Game loading
+    board = None
+    filename = "" # Keep this for save game use
+    while board is None:
+        filename = input("Enter the json file to load (excluding extension): ")
+        board = load_game(filename)
+
+    # First time display
+    print(get_board_string(board))
+    print("Specify a coordinate to edit or 'Q' to save and quit")
+
+    # Start game loop
+    play_game(board, filename)
 
 if __name__ == "__main__":
     main()
