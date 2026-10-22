@@ -48,7 +48,9 @@ def load_game(filename: str) -> list[list[int]]:
         print(f"Error: {e}")
 
 def convert_to_coordinate(coord: str) -> tuple[int, int]:
-    '''Converts a given input to a coordinate tuple (e.g. B5 or 5B -> (4, 1))'''
+    '''Converts a given input to a coordinate tuple (e.g. B5 or 5B -> (4, 1)).
+    Returns a tuple containing the valid coordinate. If the coordinate is invalid,
+    returns (-1, -1).'''
     # Split input into 2 parts
     try:
         # Trim whitespace
@@ -65,7 +67,7 @@ def convert_to_coordinate(coord: str) -> tuple[int, int]:
             column = coord[0].upper()
 
         # Convert letter into number by subtracting ASCII code
-        column = ord(column) - 65
+        column = ord(column) - ord('A')
 
         # Assert coords are in range
         assert(0  <= column <= 8)
@@ -80,36 +82,36 @@ def convert_to_coordinate(coord: str) -> tuple[int, int]:
 
 def get_valid_nums(board: list[list[int]], coord: tuple[int, int]) -> list[int]:
     '''Returns a list of valid numbers for a given square in a sudoku board.'''
-    row, col = coord
+    selected_row, selected_col = coord
     valid_nums = []
 
     for num in range(1, 10):
         failed = False
         # --- Row check ---
-        for c in range(9):
+        for col in range(9):
             # Check if we fail
-            if c != col and board[row][c] == num:
+            if col != selected_col and board[selected_row][col] == num:
                 failed = True
                 break
 
         # Continue checks if we haven't failed
         if not failed:
             # --- Column check ---
-            for r in range(9):
+            for row in range(9):
                 # Check if we fail
-                if r != row and board[r][col] == num:
+                if row != selected_row and board[row][selected_col] == num:
                     failed = True
                     break
 
             # Continue checks if we haven't failed
             if not failed:
                 #--- 3x3 box check ---
-                box_row_start = (row // 3) * 3
-                box_col_start = (col // 3) * 3
+                box_row_start = (selected_row // 3) * 3
+                box_col_start = (selected_col // 3) * 3
 
-                for r in range(box_row_start, box_row_start + 3):
-                    for c in range(box_col_start, box_col_start + 3):
-                        if (r, c) != (row, col) and board[r][c] == num:
+                for row in range(box_row_start, box_row_start + 3):
+                    for col in range(box_col_start, box_col_start + 3):
+                        if (row, col) != (selected_row, selected_col) and board[row][col] == num:
                             failed = True
                             break
 
