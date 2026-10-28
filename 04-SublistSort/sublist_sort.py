@@ -23,47 +23,57 @@ def get_sublist_index(array, start):
     return end
 
 
-def sort_sublists(list, start, mid, end):
-    '''Sorts the two adjacent sublists in place:<br />
+def sort_sublists(source, destination, start, mid, end):
+    '''Sorts the two adjacent sublists using a destination array:<br />
     first sublist  = list[start .. mid]<br />
     second sublist = list[mid + 1 .. end]'''
-    # Take each element of the second sublist and move it left
-    # until it sits in the correct position among the elements before it
-    for i in range(mid + 1, end + 1):
-        j = i
-        while j > start and list[j - 1] > list[j]:
-            list[j - 1], list[j] = list[j], list[j-1]
-            j -= 1
+    sub_one = start
+    sub_two = mid + 1
+    for i in range(start, end + 1):
+        if sub_one > mid:
+            destination[i] = source[sub_two]
+            sub_two += 1
+        elif sub_two > end or source[sub_one] <= source[sub_two]:
+            destination[i] = source[sub_one]
+            sub_one += 1
+        else:
+            destination[i] = source[sub_two]
+            sub_two += 1
+    return destination
 
 
-def sort_pass(array):
-    '''Does one full pass across the array, handling two sublists at a time.'''
+def sort_pass(source, destination):
+    '''Does one full pass across the list, handling two sublists at a time.'''
     start = 0
     done = False
 
     while not done:
-        first_end = get_sublist_index(array, start)
+        first_end = get_sublist_index(source, start)
 
-        if first_end == len(array) - 1:
+        if first_end == len(source) - 1:
             done = True
 
         else:
-            second_end = get_sublist_index(array, first_end + 1)
+            second_end = get_sublist_index(source, first_end + 1)
 
-            sort_sublists(array, start, first_end, second_end)
+            destination = sort_sublists(source, destination, start, first_end, second_end)
 
             start = second_end + 1
         
-            done = not (start < len(array))
+            done = not (start < len(source))
 
 
-def main(array: list[int]) -> list[int]:
+def main(source: list[int]) -> list[int]:
     '''Main function loop. Takes in a list and returns that list sorted.'''
-    # Repeat until one sorted run covers the whole array
-    while get_sublist_index(array, 0) < len(array) - 1:
-        sort_pass(array)
+    destination = [0] * len(source)
+    # Repeat until one sorted run covers the whole list
+    while get_sublist_index(source, 0) < len(source) - 1:
+        sort_pass(source, destination)
+        # Swap lists because apparently setting one equal to the other
+        # makes them reference the same list in memory.
+        source, destination = destination, source
 
-    return array
+    return source
 
 
 if __name__ == "__main__":
