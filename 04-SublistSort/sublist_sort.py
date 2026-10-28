@@ -51,6 +51,8 @@ def sort_pass(source, destination):
         first_end = get_sublist_index(source, start)
 
         if first_end == len(source) - 1:
+            # Copy any leftover element if necessary
+            destination[start:] = source[start:]
             done = True
 
         else:
