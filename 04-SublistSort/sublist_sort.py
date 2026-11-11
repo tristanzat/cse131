@@ -17,6 +17,8 @@ import random
 def get_sublist_index(array, start):
     '''Returns the index where the sorted run beginning at `start` ends.
     Returns `start` itself if there is no sorted run.'''
+    assert start < len(array)
+    
     end = start
     while end + 1 < len(array) and array[end] <= array[end + 1]:
         end += 1
@@ -27,6 +29,9 @@ def sort_sublists(source, destination, start, mid, end):
     '''Sorts the two adjacent sublists using a destination array:<br />
     first sublist  = list[start .. mid]<br />
     second sublist = list[mid + 1 .. end]'''
+    assert start < len(source) and mid < len(source) and end < len(source)
+    assert start <= mid < end
+
     sub_one = start
     sub_two = mid + 1
     for i in range(start, end + 1):
